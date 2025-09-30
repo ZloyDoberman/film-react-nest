@@ -3,6 +3,7 @@ import {
   IsArray,
   IsEmail,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -15,9 +16,11 @@ export class PostTicketsDto {
   film: string;
 
   @IsString()
+  @IsOptional()
   day: string;
 
   @IsString()
+  @IsOptional()
   time: string;
 
   @IsString()
