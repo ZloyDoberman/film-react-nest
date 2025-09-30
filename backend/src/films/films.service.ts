@@ -9,7 +9,7 @@ export class FilmsService {
     const films = await this.filmsRepository.findAll();
 
     if (!films) {
-      throw new NotFoundException(`Films not found!`);
+      throw new NotFoundException(`Фильмы не найдены`);
     }
 
     return {
@@ -21,7 +21,7 @@ export class FilmsService {
     const film = await this.filmsRepository.findById(id);
 
     if (!film) {
-      throw new NotFoundException(`Film with ID ${id} not found!`);
+      throw new NotFoundException(`Фильм с указанным id не найден`);
     }
 
     return {

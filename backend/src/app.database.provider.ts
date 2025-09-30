@@ -8,7 +8,7 @@ export const databaseProvider = {
       const connection = await mongoose.connect(config.database.url);
       return connection;
     } catch (error) {
-      throw error;
+      throw new Error(`Ошибка подключения к БД: ${error.message}`);
     }
   },
   inject: ['CONFIG'],
