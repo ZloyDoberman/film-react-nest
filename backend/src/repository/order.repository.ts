@@ -31,6 +31,15 @@ export class OrderRepository {
       'schedule.id': sessionId,
       'schedule.taken': { $in: places },
     });
-    return film ? true : false;
+    return !!film;
+  }
+
+  async findFilmAndSession(filmId: string, sessionId: string) {
+    const filmWithSession = await this.filmModel.findOne({
+      id: filmId,
+      'schedule.id': sessionId,
+    });
+
+    return !!filmWithSession;
   }
 }

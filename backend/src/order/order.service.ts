@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   OrderResponseDto,
   PostOrderDto,
@@ -16,6 +16,20 @@ export class OrderService {
     );
     const filmId = order.tickets[0].film;
     const sessionId = order.tickets[0].session;
+
+    if (!filmId || !sessionId) {
+      throw new NotFoundException('Не указаны фильм или сеанс');
+    }
+
+    const findFilmAndSession = await this.orderRepository.findFilmAndSession(
+      filmId,
+      sessionId,
+    );
+
+    if (!findFilmAndSession) {
+      throw new NotFoundException('Указанный фильм и(или) сеанс не найдены');
+    }
+
     const findPlaces = await this.orderRepository.findPlaces(
       places,
       filmId,
