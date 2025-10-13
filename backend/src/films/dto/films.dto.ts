@@ -1,6 +1,6 @@
 export class GetScheduleDTO {
   id: string;
-  daytime: Date;
+  daytime: string;
   hall: number;
   rows: number;
   seats: number;
@@ -12,7 +12,7 @@ export class GetFilmDto {
   id: string;
   rating: number;
   director: string;
-  tags: string[];
+  tags: string;
   image: string;
   cover: string;
   title: string;

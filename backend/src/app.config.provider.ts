@@ -1,4 +1,4 @@
-import { ConfigModule } from '@nestjs/config';
+/*import { ConfigModule } from '@nestjs/config';
 
 export const configProvider = {
   imports: [ConfigModule.forRoot()],
@@ -20,3 +20,4 @@ export interface AppConfigDatabase {
   driver: string;
   url: string;
 }
+*/

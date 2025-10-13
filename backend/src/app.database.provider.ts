@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+/*import * as mongoose from 'mongoose';
 import { AppConfig } from './app.config.provider';
 
 export const databaseProvider = {
@@ -13,3 +13,4 @@ export const databaseProvider = {
   },
   inject: ['CONFIG'],
 };
+*/
