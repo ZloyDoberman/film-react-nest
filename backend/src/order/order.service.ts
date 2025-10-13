@@ -9,12 +9,10 @@ import {
   PostOrderDto,
   TicketsResponseDto,
 } from './dto/order.dto';
-import { OrderRepository } from '../repository/order.repository';
 import { PlaceException } from '../exceptions/places.exception';
-import { Films } from '../films/entities/film.entity';
 import { Schedules } from '../films/entities/schedule.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ArrayOverlap, DataSource, Like, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 /*@Injectable()
 export class OrderService {
