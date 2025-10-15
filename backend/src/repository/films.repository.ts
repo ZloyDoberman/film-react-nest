@@ -1,18 +1,33 @@
-import { Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { FilmDocument } from '../films/films.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Films } from '../entities/postgres/film.entity';
+import { Schedules } from '../entities/postgres/schedule.entity';
+import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class FilmsRepository {
   constructor(
-    @Inject('FILM')
-    private filmModel: Model<FilmDocument>,
+    @InjectRepository(Films)
+    private filmsRepository: Repository<Films>,
+
+    @InjectRepository(Schedules)
+    private schedulesRepository: Repository<Schedules>,
   ) {}
 
   async findAll() {
-    return this.filmModel.find({}).select('-schedule -_id');
+    return this.filmsRepository.find();
   }
 
   async findById(id: string) {
-    return this.filmModel.findOne({ id }).select('schedule -_id');
+    return this.filmsRepository.findOneBy({ id });
+  }
+
+  async findSchedules(id: string, sort: 'ASC' | 'DESC' = 'ASC') {
+    return this.schedulesRepository.find({
+      where: { filmId: id },
+      order: {
+        daytime: sort,
+      },
+    });
   }
 }

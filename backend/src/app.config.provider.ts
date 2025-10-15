@@ -1,4 +1,13 @@
-/*import { ConfigModule } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+
+export interface AppConfig {
+  database: AppConfigDatabase;
+}
+
+export interface AppConfigDatabase {
+  driver: string;
+  url: string;
+}
 
 export const configProvider = {
   imports: [ConfigModule.forRoot()],
@@ -11,13 +20,3 @@ export const configProvider = {
     //TODO прочесть переменнные среды
   },
 };
-
-export interface AppConfig {
-  database: AppConfigDatabase;
-}
-
-export interface AppConfigDatabase {
-  driver: string;
-  url: string;
-}
-*/

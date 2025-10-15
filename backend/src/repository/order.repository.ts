@@ -1,45 +1,47 @@
-import { Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { FilmDocument } from 'src/films/films.interface';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Schedules } from '../entities/postgres/schedule.entity';
+import { EntityManager, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+@Injectable()
 export class OrderRepository {
   constructor(
-    @Inject('FILM')
-    private filmModel: Model<FilmDocument>,
+    @InjectRepository(Schedules)
+    private schedulesRepository: Repository<Schedules>,
   ) {}
 
-  async create(places: string[], filmId: string, sessionId: string) {
-    return this.filmModel.findOneAndUpdate(
-      {
-        id: filmId,
-        'schedule.id': sessionId,
-      },
-      {
-        $push: {
-          'schedule.$.taken': {
-            $each: places,
-          },
-        },
-      },
-      { new: true },
+  async findFilmAndSession(
+    filmId: string,
+    sessionId: string,
+    transactionalManager?: EntityManager,
+  ) {
+    const repository = transactionalManager
+      ? transactionalManager.getRepository(Schedules)
+      : this.schedulesRepository;
+
+    const schedule = await repository
+      .createQueryBuilder('schedule')
+      .setLock('pessimistic_write')
+      .where('schedule.id = :sessionId AND schedule.filmId = :filmId', {
+        sessionId,
+        filmId,
+      })
+      .getOne();
+    return schedule;
+  }
+
+  async updTaken(
+    filmId: string,
+    sessionId: string,
+    taken: string,
+    transactionalManager?: EntityManager,
+  ) {
+    const repository = transactionalManager
+      ? transactionalManager.getRepository(Schedules)
+      : this.schedulesRepository;
+
+    await repository.update(
+      { id: sessionId, filmId: filmId },
+      { taken: taken },
     );
-  }
-
-  async findPlaces(places: string[], filmId: string, sessionId: string) {
-    const film = await this.filmModel.findOne({
-      id: filmId,
-      'schedule.id': sessionId,
-      'schedule.taken': { $in: places },
-    });
-    return !!film;
-  }
-
-  async findFilmAndSession(filmId: string, sessionId: string) {
-    const filmWithSession = await this.filmModel.findOne({
-      id: filmId,
-      'schedule.id': sessionId,
-    });
-
-    return !!filmWithSession;
   }
 }
