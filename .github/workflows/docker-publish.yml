@@ -1,57 +1,72 @@
-name: Build and Push Docker Images
+name: Build and Push Docker Images to GHCR
 
 on:
   push:
-    branches: [ main, master, review-3 ]
+    branches:
+      - main
+      - review-3
+  pull_request:
+    branches:
+      - main
+
+env:
+  GHCR_USERNAME: ${{ github.repository_owner }}
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
+
     permissions:
+      contents: write
       packages: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: set lower case owner name
+        run: |
+          echo "GHCR_USERNAME=$(echo ${{ env.GHCR_USERNAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV 
+        
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
-    - name: Set lowercase owner
-      id: set_lowercase
-      run: |
-        echo "OWNER_LOWERCASE=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ env.GHCR_USERNAME }}/backend:latest
+            ghcr.io/${{ env.GHCR_USERNAME }}/backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: Build and push Frontend
-      uses: docker/build-push-action@v5
-      with:
-        context: ./frontend
-        push: true
-        tags: |
-          ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/frontend:latest
-          ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/frontend:${{ github.sha }}
+      - name: Build and push Nginx image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./nginx
+          push: true
+          tags: |
+            ghcr.io/${{ env.GHCR_USERNAME }}/nginx:latest
+            ghcr.io/${{ env.GHCR_USERNAME }}/nginx:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: Build and push Backend
-      uses: docker/build-push-action@v5
-      with:
-        context: ./backend
-        push: true
-        tags: |
-          ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/backend:latest
-          ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/backend:${{ github.sha }}
-
-    - name: Build and push Nginx
-      uses: docker/build-push-action@v5
-      with:
-        context: ./nginx
-        push: true
-        tags: |
-          ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/nginx:latest
-          ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/nginx:${{ github.sha }}
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ env.GHCR_USERNAME }}/frontend:latest
+            ghcr.io/${{ env.GHCR_USERNAME }}/frontend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
