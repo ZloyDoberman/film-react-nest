@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/zloydoberman/backend:latest
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DATABASE_USERNAME=${DATABASE_USERNAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - POSTGRES_HOST=postgres
@@ -25,8 +25,7 @@ services:
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - LOG_FORMAT=${LOG_FORMAT}
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
       - app-network
 
@@ -37,27 +36,14 @@ services:
     image: ghcr.io/zloydoberman/nginx:latest
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - certbot-www:/var/www/certbot:ro
-      - certbot-conf:/etc/letsencrypt:ro
       - frontend-dist:/usr/share/nginx/html:ro
     depends_on:
       - frontend
+      - backend
     networks:
       - app-network
     restart: unless-stopped
-
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - certbot-www:/var/www/certbot:rw
-      - certbot-conf:/etc/letsencrypt:rw
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email pribytkoffmaxim@yandex.ru -d zloydoberman.nomorepartiessbs.ru -d api.zloydoberman.nomorepartiessbs.ru --agree-tos
-    depends_on:
-      - nginx
-    networks:
-      - app-network
 
   postgres:
     image: postgres:15-alpine
@@ -67,7 +53,6 @@ services:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     healthcheck:
@@ -94,8 +79,6 @@ volumes:
   frontend-dist:
   postgres-data:
   pgadmin-data:
-  certbot-www:
-  certbot-conf:
 
 networks:
   app-network:
