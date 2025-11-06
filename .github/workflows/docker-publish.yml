@@ -33,7 +33,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./frontend
-        file: ./frontend/Dockerfile
+        file: Dockerfile 
         push: true
         tags: |
           ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/frontend:latest
@@ -43,7 +43,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./backend
-        file: ./backend/Dockerfile
+        file: Dockerfile
         push: true
         tags: |
           ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/backend:latest
@@ -53,7 +53,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./nginx
-        file: ./nginx/Dockerfile
+        file: Dockerfile
         push: true
         tags: |
           ghcr.io/${{ steps.set_lowercase.outputs.OWNER_LOWERCASE }}/nginx:latest
