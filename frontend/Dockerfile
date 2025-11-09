@@ -13,4 +13,4 @@ FROM node:20-alpine as production
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 
-VOLUME /app/dist
+CMD ["sh", "-c", "cp -r /app/dist/* /frontend-dist/ && tail -f /dev/null"]

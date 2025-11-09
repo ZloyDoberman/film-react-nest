@@ -6,6 +6,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     image: ghcr.io/zloydoberman/frontend:latest
+    volumes:
+      - frontend-dist:/frontend-dist
     networks:
       - app-network
 
@@ -32,29 +34,16 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     image: ghcr.io/zloydoberman/nginx:latest
+    volumes:
+      - frontend-dist:/usr/share/nginx/html
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - frontend
       - backend
-    volumes:
-      - certbot-www:/var/www/certbot
-      - certbot-conf:/etc/letsencrypt
     networks:
       - app-network
     restart: unless-stopped
-
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - certbot-www:/var/www/certbot
-      - certbot-conf:/etc/letsencrypt
-    depends_on:
-      - nginx
-    networks:
-      - app-network
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email pribytkoffmaxim@yandex.ru -d zloydoberman.nomorepartiessbs.ru -d api.zloydoberman.nomorepartiessbs.ru --agree-tos
 
   postgres:
     image: postgres:15-alpine
@@ -82,10 +71,9 @@ services:
       - app-network
 
 volumes:
+  frontend-dist:
   postgres-data:
   pgadmin-data:
-  certbot-www:
-  certbot-conf:
 
 networks:
   app-network:
