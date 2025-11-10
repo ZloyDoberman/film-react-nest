@@ -11,7 +11,7 @@ import {
 } from './dto/order.dto';
 import { OrderRepository } from '../repository/order.repository';
 import { DataSource } from 'typeorm';
-import { PlaceException } from 'src/exceptions/places.exception';
+import { PlaceException } from '../exceptions/places.exception';
 
 @Injectable()
 export class OrderService {

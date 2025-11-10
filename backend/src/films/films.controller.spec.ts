@@ -1,18 +1,39 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { FilmsController } from './films.controller';
+import { FilmsService } from './films.service';
 
 describe('FilmsController', () => {
-  let controller: FilmsController;
+  let filmsController: FilmsController;
+  let filmService: FilmsService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       controllers: [FilmsController],
-    }).compile();
+      providers: [FilmsService],
+    })
+      .overrideProvider(FilmsService)
+      .useValue({
+        getAllFilms: jest.fn(),
+        getSchedulesById: jest.fn(),
+      })
+      .compile();
 
-    controller = module.get<FilmsController>(FilmsController);
+    filmsController = moduleRef.get<FilmsController>(FilmsController);
+    filmService = moduleRef.get<FilmsService>(FilmsService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('вызов метода сервиса .getAllFilms()', async () => {
+    await filmsController.findAll();
+    expect(filmService.getAllFilms).toHaveBeenCalled();
+  });
+
+  it('вызов метода сервиса .getSchedulesById()', async () => {
+    const filmId = '123';
+    await filmsController.getSchedule(filmId);
+    expect(filmService.getSchedulesById).toHaveBeenCalledWith(filmId);
   });
 });
